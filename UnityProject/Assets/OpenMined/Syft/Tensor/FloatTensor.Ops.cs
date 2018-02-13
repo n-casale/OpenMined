@@ -360,8 +360,75 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-        public FloatTensor addr (float beta = 1, float alpha = 1, FloatTensor vec1, FloatTensor vec2, bool inline = false){
-          
+        public FloatTensor addr (float beta, float alpha, FloatTensor vec1, FloatTensor vec2, bool inline = false){
+          // check for contiguity
+          if (!IsContiguous() || !vec1.IsContiguous() || !vec2.IsContiguous()) {
+            throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+          }
+
+          // make sure data is colocated
+          var gpu = dataOnGpu & vec2.DataOnGpu & vec2.DataOnGpu;
+          var cpu = !(dataOnGpu | vec1.DataOnGpu | vec2.DataOnGpu);
+
+          // check dimensions
+          var ref_shape = this.Shape;
+          var vec1_shape = vec1.Shape;
+          var vec2_shape = vec2.Shape;
+
+          if (ref_shape.Length != 2)
+            throw new InvalidOperationException(
+              "The calling Tensor must be a matrix of dimension 2.");
+          if (vec1_shape.Length != 1)
+            throw new InvalidOperationException(
+              "Vector 1 should be of a single dimension.");
+          if (vec2_shape.Length != 1)
+            throw new InvalidOperationException(
+              "Vector 2 should be of a single dimension.");
+          if (ref_shape[0] != vec1_shape[0])
+            throw new InvalidOperationException(String.Format(
+              "First dimension of matrix and first vector do not match: {0} & {1}.", ref_shape[0], vec1_shape[0]));
+          if (ref_shape[1] != vec2_shape[0])
+            throw new InvalidOperationException(String.Format("Last dimension of matrix doesn't match second vector: {0} vs {1}.",
+              ref_shape[1], vec2_shape[0]));
+
+          FloatTensor result;
+
+          if (gpu){
+            addrGPU(beta, alpha, vec1, vec2);
+          }
+          else if (cpu){
+            if (inline){
+              var nCpu = SystemInfo.processorCount;
+              Parallel.For(0, nCpu, workerId =>
+              {
+                var max = size * (workerId + 1) / nCpu;
+                for (var idx = size * workerId / nCpu; idx < max; idx++){
+                  var col = idx % this.shape[1];
+                  var row = (idx - col) / this.shape[1];
+                  this[idx] = beta*this[idx] + alpha*vec1[row]*vec2[col];
+                }
+              });
+              return this;
+            } else {
+              result = factory.Create(this.shape);
+              var nCpu = SystemInfo.processorCount;
+              Parallel.For(0, nCpu, workerId =>
+              {
+                var max = size * (workerId + 1) / nCpu;
+                for (var idx = size * workerId / nCpu; idx < max; idx++){
+                  var col = idx % this.shape[1];
+                  var row = (idx - col) / this.shape[1];
+                  result[idx] = beta*this[idx] + alpha*vec1[row]*vec2[col];
+                }
+              });
+              return result;
+            }
+          }
+          else {
+            Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
+          }
+
+          return this;
         }
 
 		public FloatTensor Asin ( bool inline = false)

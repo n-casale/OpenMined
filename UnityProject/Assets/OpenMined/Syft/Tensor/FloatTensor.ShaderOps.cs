@@ -295,7 +295,7 @@ namespace OpenMined.Syft.Tensor
                     shader.SetBuffer(AddElemKernel, "AddElemDataA", this.DataBuffer);
                     shader.SetBuffer(AddElemKernel, "AddElemDataB", tensor.DataBuffer);
                     shader.SetBuffer(AddElemKernel, "AddElemDataResult", result.DataBuffer);
-                    
+
                     shader.Dispatch(AddElemKernel, this.size, 1, 1);
                 }
                 else
@@ -470,6 +470,10 @@ namespace OpenMined.Syft.Tensor
             shader.SetBuffer(AddMVKernel_, "AddMVVectorData", vector.DataBuffer);
             shader.Dispatch(AddMVKernel_, this.Size, 1, 1);
             refShapeBuffer.Release();
+        }
+
+        public void addrGPU(float beta, float alpha, FloatTensor vec1, FloatTensor vec2) {
+
         }
 
         public void CeilGPU_()

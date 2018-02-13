@@ -267,30 +267,30 @@ namespace OpenMined.Syft.Tensor
                 {
                     var tensor_1 = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
                     var tensor_2 = factory.Get(int.Parse(msgObj.tensorIndexParams[1]));
-                    addr(tensor_1, tensor_2);
+                    AddMatrixVectorProduct(tensor_1, tensor_2);
                     return msgObj.functionCall + ": OK";
                 }
                 case "addr":
                 {
-                  float beta = float.Parse(msgObj.tensorIndexParams[0]);
-                  float alpha = float.Parse(msgObj.tensorIndexParams[1]);
-                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
-                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[3]));
+                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
+                  float beta = float.Parse(msgObj.tensorIndexParams[2]);
+                  float alpha = float.Parse(msgObj.tensorIndexParams[3]);
 
-                  FloatTensor result = AddMatrixToOuterProduct(beta, alpha, vec1, vec2);
+                  FloatTensor result = addr(beta, alpha, vec1, vec2);
 
-                  return result.id.toString();
+                  return result.id + "";
                 }
                 case "addr_":
                 {
-                  float beta = float.Parse(msgObj.tensorIndexParams[0]);
-                  float alpha = float.Parse(msgObj.tensorIndexParams[1]);
-                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
-                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[3]));
+                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
+                  float beta = float.Parse(msgObj.tensorIndexParams[2]);
+                  float alpha = float.Parse(msgObj.tensorIndexParams[3]);
 
                   addr(beta, alpha, vec1, vec2, inline: true);
 
-                  return id.toString();
+                  return this.id + "";
                 }
                 case "backward":
                 {
