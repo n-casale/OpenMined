@@ -361,7 +361,7 @@ namespace OpenMined.Syft.Tensor
             throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
 
           // make sure data is colocated
-          var gpu = dataOnGpu & vec2.DataOnGpu & vec2.DataOnGpu;
+          var gpu = dataOnGpu & vec1.DataOnGpu & vec2.DataOnGpu;
           var cpu = !(dataOnGpu | vec1.DataOnGpu | vec2.DataOnGpu);
 
           // check dimensions
@@ -388,7 +388,12 @@ namespace OpenMined.Syft.Tensor
           FloatTensor result;
 
           if (gpu){
-            AddrGPU(beta, vec1, vec2, alpha, inline);
+            if (inline) {
+              AddrGPU_(beta, vec1, vec2, alpha);
+              return this;
+            }
+    				else
+              return AddrGPU(beta, vec1, vec2, alpha);
           } else if (cpu){
             if (inline) {
               var nCpu = SystemInfo.processorCount;

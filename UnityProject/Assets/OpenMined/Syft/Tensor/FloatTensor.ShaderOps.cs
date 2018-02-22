@@ -476,45 +476,49 @@ namespace OpenMined.Syft.Tensor
             refShapeBuffer.Release();
         }
 
-        public FloatTensor AddrGPU(float beta, FloatTensor vec1, FloatTensor vec2, float alpha, bool inline = false)
+        public FloatTensor AddrGPU(float beta, FloatTensor vec1, FloatTensor vec2, float alpha)
         {
           Debug.LogFormat("<color=blue>FloatTensor.AddrGPU dataOnGpu: {0}</color>", dataOnGpu);
 
-          if (inline) {
-            FloatTensor result = factory.Create(this.shape);
-            // assign to gpu
-            result.Gpu(shader);
+          var result = this.emptyTensorCopy();
 
-            var strideBuffer = SendIntToGpu(AddrKernel, this.shape[1], "AddrStride");
-            var betaBuffer = SendFloatToGpu(AddrKernel, beta, "AddrBeta");
-            var alphaBuffer = SendFloatToGpu(AddrKernel, alpha, "AddrAlpha");
+          var strideBuffer = SendIntToGpu(AddrKernel, this.shape[1], "AddrStride");
+          var betaBuffer = SendFloatToGpu(AddrKernel, beta, "AddrBeta");
+          var alphaBuffer = SendFloatToGpu(AddrKernel, alpha, "AddrAlpha");
 
-            // associate arrays with gpu
-            shader.SetBuffer(AddrKernel, "AddrMatrix", this.DataBuffer);
-            shader.SetBuffer(AddrKernel, "AddrVec1", vec1.DataBuffer);
-            shader.SetBuffer(AddrKernel, "AddrVec2", vec2.DataBuffer);
-            shader.SetBuffer(AddrKernel, "AddrResult", result.DataBuffer);
+          // associate arrays with gpu
+          shader.SetBuffer(AddrKernel, "AddrMatrix", dataBuffer);
+          shader.SetBuffer(AddrKernel, "AddrVec1", vec1.DataBuffer);
+          shader.SetBuffer(AddrKernel, "AddrVec2", vec2.DataBuffer);
+          shader.SetBuffer(AddrKernel, "AddrResult", result.DataBuffer);
 
-            // launch kernel
-            shader.Dispatch(AddrKernel, this.size, 1, 1);
+          // launch kernel
+          shader.Dispatch(AddrKernel, size, 1, 1);
 
-            return result;
-          }
-          else {
-            var strideBuffer = SendIntToGpu(AddrKernel_, this.shape[1], "AddrStride_");
-            var betaBuffer = SendFloatToGpu(AddrKernel_, beta, "AddrBeta_");
-            var alphaBuffer = SendFloatToGpu(AddrKernel_, alpha, "AddrAlpha_");
+          strideBuffer.Release();
+          betaBuffer.Release();
+          alphaBuffer.Release();
 
-            // associate arrays with gpu
-            shader.SetBuffer(AddrKernel_, "AddrMatrix_", this.DataBuffer);
-            shader.SetBuffer(AddrKernel_, "AddrVec1_", vec1.DataBuffer);
-            shader.SetBuffer(AddrKernel_, "AddrVec2_", vec2.DataBuffer);
+          return result;
+        }
 
-            // launch kernel
-            shader.Dispatch(AddrKernel, this.size, 1, 1);
+        public void AddrGPU_(float beta, FloatTensor vec1, FloatTensor vec2, float alpha)
+        {
+          var strideBuffer = SendIntToGpu(AddrKernel_, shape[1], "AddrStride_");
+          var betaBuffer = SendFloatToGpu(AddrKernel_, beta, "AddrBeta_");
+          var alphaBuffer = SendFloatToGpu(AddrKernel_, alpha, "AddrAlpha_");
 
-            return this;
-          }
+          // associate arrays with gpu
+          shader.SetBuffer(AddrKernel_, "AddrMatrix_", dataBuffer);
+          shader.SetBuffer(AddrKernel_, "AddrVec1_", vec1.DataBuffer);
+          shader.SetBuffer(AddrKernel_, "AddrVec2_", vec2.DataBuffer);
+
+          // launch kernel
+          shader.Dispatch(AddrKernel_, size, 1, 1);
+
+          strideBuffer.Release();
+          betaBuffer.Release();
+          alphaBuffer.Release();
         }
 
         public void CeilGPU_()

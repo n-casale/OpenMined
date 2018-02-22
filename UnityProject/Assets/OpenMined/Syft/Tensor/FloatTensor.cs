@@ -278,7 +278,7 @@ namespace OpenMined.Syft.Tensor
                   FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
                   float alpha = float.Parse(msgObj.tensorIndexParams[3]);
 
-                  FloatTensor result = Addr(beta, vec1, vec2, alpha);
+                  FloatTensor result = this.Addr(beta, vec1, vec2, alpha);
 
                   return result.id + "";
                 }
@@ -290,7 +290,7 @@ namespace OpenMined.Syft.Tensor
                   FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
                   float alpha = float.Parse(msgObj.tensorIndexParams[3]);
 
-                  Addr(beta, vec1, vec2, alpha, inline: true);
+                  this.Addr(beta, vec1, vec2, alpha, inline: true);
 
                   return this.id + "";
                 }
