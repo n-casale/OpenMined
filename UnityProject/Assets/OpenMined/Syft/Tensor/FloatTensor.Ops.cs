@@ -360,11 +360,11 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-        public FloatTensor addr (float beta, float alpha, FloatTensor vec1, FloatTensor vec2, bool inline = false){
+        public FloatTensor Addr (float beta, FloatTensor vec1, FloatTensor vec2,  float alpha, bool inline = false)
+        {
           // check for contiguity
-          if (!IsContiguous() || !vec1.IsContiguous() || !vec2.IsContiguous()) {
+          if (!IsContiguous() || !vec1.IsContiguous() || !vec2.IsContiguous())
             throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-          }
 
           // make sure data is colocated
           var gpu = dataOnGpu & vec2.DataOnGpu & vec2.DataOnGpu;
@@ -394,10 +394,9 @@ namespace OpenMined.Syft.Tensor
           FloatTensor result;
 
           if (gpu){
-            addrGPU(beta, alpha, vec1, vec2);
-          }
-          else if (cpu){
-            if (inline){
+            AddrGPU(beta, vec1, vec2, alpha, inline);
+          } else if (cpu){
+            if (inline) {
               var nCpu = SystemInfo.processorCount;
               Parallel.For(0, nCpu, workerId =>
               {
@@ -425,7 +424,7 @@ namespace OpenMined.Syft.Tensor
             }
           }
           else {
-            Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
+            Debug.Log("All Tensors must colocated on the same device. CPU != GPU");
           }
 
           return this;

@@ -272,23 +272,25 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "addr":
                 {
-                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
-                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
-                  float beta = float.Parse(msgObj.tensorIndexParams[2]);
+                  // [beta, vec1.id, vec2.id, alpha]
+                  float beta = float.Parse(msgObj.tensorIndexParams[0]);
+                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
+                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
                   float alpha = float.Parse(msgObj.tensorIndexParams[3]);
 
-                  FloatTensor result = addr(beta, alpha, vec1, vec2);
+                  FloatTensor result = Addr(beta, vec1, vec2, alpha);
 
                   return result.id + "";
                 }
                 case "addr_":
                 {
-                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
-                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
-                  float beta = float.Parse(msgObj.tensorIndexParams[2]);
+                  // [beta, vec1.id, vec2.id, alpha]
+                  float beta = float.Parse(msgObj.tensorIndexParams[0]);
+                  FloatTensor vec1 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
+                  FloatTensor vec2 = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
                   float alpha = float.Parse(msgObj.tensorIndexParams[3]);
 
-                  addr(beta, alpha, vec1, vec2, inline: true);
+                  Addr(beta, vec1, vec2, alpha, inline: true);
 
                   return this.id + "";
                 }

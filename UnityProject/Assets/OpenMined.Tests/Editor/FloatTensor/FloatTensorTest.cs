@@ -258,7 +258,7 @@ namespace OpenMined.Tests.Editor.FloatTensorTests
         }
 
         [Test]
-        public void addr(){
+        public void Addr(){
 
           float[] data1 = {1, 2, 3, 4};
           int[] shape1 = new int[] {2, 2};
@@ -275,7 +275,7 @@ namespace OpenMined.Tests.Editor.FloatTensorTests
           int[] shape3 = new int[] {2};
           var vec2 = ctrl.floatTensorFactory.Create(_data: data3, _shape: shape3);
 
-          var result = matrix.addr(beta, alpha, vec1, vec2);
+          var result = matrix.Addr(beta, vec1, vec2, alpha);
 
           float[] expectedData = new float[] {11, 16, 24, 32};
           int[] expectedShape = new int[] {2, 2};
@@ -288,11 +288,11 @@ namespace OpenMined.Tests.Editor.FloatTensorTests
         }
 
         [Test]
-        public void addr_(){
+        public void Addr_(){
 
           float[] data1 = {1, 2, 3, 4};
           int[] shape1 = new int[] {2, 2};
-          var matrix = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
+          var mat = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
 
           float beta = 2;
           float alpha = 3;
@@ -305,14 +305,14 @@ namespace OpenMined.Tests.Editor.FloatTensorTests
           int[] shape3 = new int[] {2};
           var vec2 = ctrl.floatTensorFactory.Create(_data: data3, _shape: shape3);
 
-          matrix.addr(beta, alpha, vec1, vec2, true);
+          mat.Addr(beta, vec1, vec2, alpha, true);
 
           float[] expectedData = new float[] {11, 16, 24, 32};
           int[] expectedShape = new int[] {2, 2};
           var expectedMatrix = ctrl.floatTensorFactory.Create(_data: expectedData, _shape: expectedShape);
 
           for (int i = 0; i < expectedMatrix.Size; i++){
-              Assert.AreEqual(expectedMatrix[i], matrix[i]);
+              Assert.AreEqual(expectedMatrix[i], mat[i]);
           }
 
         }
