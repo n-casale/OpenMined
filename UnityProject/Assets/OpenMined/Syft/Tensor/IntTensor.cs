@@ -175,6 +175,14 @@ namespace OpenMined.Syft.Tensor
                     this.Lt(compareToTensor, inline: true);
                     return this.id + "";
                 }
+
+                case "max_":
+                {
+                    var compareToTensor = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    this.Max(compareToTensor, inline: true);
+                    return this.id + "";
+                }
+
                 case "add_elem":
                 {
                     Debug.LogFormat("add_elem");
@@ -212,6 +220,11 @@ namespace OpenMined.Syft.Tensor
                   var other = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
                   this.Eq(other, inline: true);
                   return this.id + "";
+                }
+                case "exp":
+                {
+                  var result = this.Exp();
+                  return result.id + "";
                 }
                 case "cos":
                 {
@@ -358,11 +371,20 @@ namespace OpenMined.Syft.Tensor
                     var result = Sqrt();
                     return result.Id + "";
                 }
-
+                case "rsqrt":
+                {
+                    var result = Rsqrt();
+                    return result.Id + "";   
+                }
                 case "sin":
                 {
                      var result = Sin();
                      return result.Id.ToString();
+                }
+                case "sinh":
+                {
+                    var result = Sinh();
+                    return result.Id.ToString();
                 }
 				case "neg":
 				{
@@ -446,6 +468,16 @@ namespace OpenMined.Syft.Tensor
                     }
                     View(new_dims, inline: true);
                     return Id.ToString();
+                }
+
+                case "unfold":
+                {
+                    int dim = int.Parse (msgObj.tensorIndexParams [0]);
+                    int size = int.Parse (msgObj.tensorIndexParams [1]);
+                    int step = int.Parse (msgObj.tensorIndexParams [2]);
+                    
+                    var result = Unfold (dim, size, step);
+                    return result.Id.ToString ();
                 }
                 
                 case "to_numpy_by_proto":

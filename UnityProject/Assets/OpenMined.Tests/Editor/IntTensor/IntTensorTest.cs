@@ -6,10 +6,10 @@ using UnityEngine;
 using Google.Protobuf;
 using OpenMined.Protobuf.Onnx;
 
-namespace OpenMined.Tests.Editor.IntTensorTests
+namespace OpenMined.Tests.Tensor.IntTensor
 {
-    [Category("IntTensorCPUTests")]
-    public class IntTensorCPUTest
+    [Category("CPUTest")]
+    public class CPUTest
     {
         private SyftController ctrl;
 
@@ -101,13 +101,13 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         [Test]
         public void Add()
         {
-            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             int[] shape1 = { 2, 5 };
-            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
 
-            float[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7 };
+            int[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7 };
             int[] shape2 = { 2, 5 };
-            var tensor2 = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
 
             var tensorSum = tensor1.Add(tensor2);
 
@@ -120,23 +120,61 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         [Test]
         public void Add_()
         {
-            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             int[] shape1 = { 2, 5 };
-            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
 
-            float[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7 };
+            int[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7 };
             int[] shape2 = { 2, 5 };
-            var tensor2 = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
 
-            float[] data3 = { 4, 4, 9, 13, 15, 7, 11, 16, 14, 17 };
+            int[] data3 = { 4, 4, 9, 13, 15, 7, 11, 16, 14, 17 };
             int[] shape3 = { 2, 5 };
-            var tensor3 = ctrl.floatTensorFactory.Create(_data: data3, _shape: shape3);
+            var tensor3 = ctrl.intTensorFactory.Create(_data: data3, _shape: shape3);
 
             tensor1.Add(tensor2, inline: true);
 
             for (int i = 0; i < tensor1.Size; i++)
             {
                 Assert.AreEqual(tensor3[i], tensor1[i]);
+            }
+        }
+
+        [Test]
+        public void AddScalar()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int scalar = 5;
+
+            var tensorSum = tensor1.Add(scalar);
+
+            for (int i = 0; i < tensorSum.Size; i++)
+            {
+                Assert.AreEqual(tensor1[i] + scalar, tensorSum[i]);
+            }
+        }
+
+        [Test]
+        public void AddScalar_()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int scalar = -5;
+
+            int[] data2 = { -4, -3, -2, -1,  0,  1,  2,  3,  4,  5 };
+            int[] shape2 = { 2, 5 };
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            tensor1.Add(scalar, inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(tensor2[i], tensor1[i]);
             }
         }
 
@@ -258,6 +296,7 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             }
         }
 
+        [Test]
         public void Equal()
         {
             int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -278,6 +317,27 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             Assert.False(tensor1.Equal(tensor2));
             Assert.True(tensor1.Equal(tensor3));
         }
+
+        [Test]
+        public void Max_()
+        {
+            int[] data = { 4,0,6,-3,8,-2 };
+            int[] compareData = { 1,-2,2,-3,0,-1 };
+            int[] shape = { 1, 6 };
+            var tensor = ctrl.intTensorFactory.Create(_data: data, _shape: shape);
+            var compareTensor = ctrl.intTensorFactory.Create(_data: compareData, _shape: shape);
+
+
+            int[] expectedData = { 4, 0, 6, -3, 8, -1 };
+            var expectedOutput = ctrl.intTensorFactory.Create(_data: expectedData, _shape: shape);
+
+            var maxOutput = tensor.Max(compareTensor, inline: true);
+
+		for (int i = 0; i < expectedOutput.Size; i++)
+  	          {
+	                Assert.AreEqual(expectedOutput[i], maxOutput[i]);            
+		}
+	}
 
         [Test]
         public void PowElem()
@@ -379,6 +439,25 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             for (int i = 0; i < tensor1.Data.Length; i++)
             {
                 Assert.AreEqual(expectedTensor[i], result[i], 1e-3);
+            }
+        }
+
+        [Test]
+        public void Rsqrt()
+        {
+            int[] data1 = {1, 1, 1, 4};
+            int[] shape1 = {2, 2};
+
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+            var result = tensor1.Rsqrt();
+
+            float[] data2 = {1.0f, 1.0f, 1.0f, 0.5f };
+            int[] shape2 = {2, 2};
+            var expectedTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+
+            for (int i = 0; i < tensor1.Data.Length; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], result[i]);
             }
         }
 
@@ -595,6 +674,26 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             // }
 
         }
+
+        [Test]
+        public void Exp()
+        {
+            int[] inputShape = { 2, 2 };
+            int[] inputData = { -1, 1, 3, 34};
+            var inputTensor = ctrl.intTensorFactory.Create(_data: inputData, _shape: inputShape);
+
+            int[] outputShape = { 2, 2 };
+            int[] expectedData = { 0, 2, 20, 2147483647};
+            var expectedTensor = ctrl.intTensorFactory.Create(_data: expectedData, _shape: outputShape);
+
+            var outputTensorExp = inputTensor.Exp();
+
+            for (int i = 0; i < expectedTensor.Size; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], outputTensorExp[i]);
+            }
+        }
+
         [Test]
         public void Lt()
         {
@@ -677,6 +776,25 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         }
 
         [Test]
+        public void Sinh()
+        {
+            int[] data1 = { -1, -2, 3, 4, 5, -6 };
+            int[] shape1 = { 6 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            float[] data2 = { -1.175201f, -3.62686f, 10.01787f, 27.28992f, 74.20321f, -201.7132f };
+            int[] shape2 = { 6 };
+            var expectedSinhTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var actualSinhTensor = tensor1.Sinh();
+
+            for (int i = 0; i < actualSinhTensor.Size; i++)
+            {
+                Assert.AreEqual(expectedSinhTensor[i], actualSinhTensor[i], 1e-4);
+            }
+        }
+
+        [Test]
         public void GetProto()
         {
             int[] data = {-1, 0, 1, int.MaxValue, int.MinValue};
@@ -722,6 +840,45 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             for (int i = 0; i < tensor1.Size; i++)
             {
                 Assert.AreEqual(expectedIntTesnor[i], tensor1[i]);
+            }
+        }
+
+        [Test]
+        public void Unfold()
+        {
+            int[] input_data = {-1, 2, 3, 5, 0, 4, 6, 7, 10, 3, 2, -5};
+            int[] input_shape = {3, 4};
+
+            var input_tensor = ctrl.intTensorFactory.Create(_data: input_data, _shape: input_shape);
+
+            // Test1
+            int dim = 0;
+            int step = 1;
+            int size = 2;
+            int[] expected_data = {-1, 2, 3, 5, 0, 4, 6, 7, 0, 4, 6, 7, 10, 3, 2, -5};
+            int[] expected_shape = {2, 2, 4};
+            var expected_output_tensor = ctrl.intTensorFactory.Create(_data: expected_data, _shape: expected_shape);
+
+            var actual_output_tensor = input_tensor.Unfold(dim: dim, step: step, size: size);
+            
+            for (int i = 0; i<actual_output_tensor.Size; i++)
+            {
+                Assert.AreEqual(expected_output_tensor[i], actual_output_tensor[i]);
+            }
+
+            // Test2
+            dim = 1;
+            step = 1;
+            size = 3;
+            int[] expected_data2 = {-1, 2, 3, 0, 4, 6, 10, 3, 2, 2, 3, 5, 4, 6, 7, 3, 2, -5};
+            int[] expected_shape2 = {2, 3, 3};
+            var expected_output_tensor2 = ctrl.intTensorFactory.Create(_data: expected_data2, _shape: expected_shape2);
+
+            actual_output_tensor = input_tensor.Unfold(dim: dim, step: step, size: size);
+            
+            for (int i = 0; i<actual_output_tensor.Size; i++)
+            {
+                Assert.AreEqual(expected_output_tensor2[i], actual_output_tensor[i]);
             }
         }
 
